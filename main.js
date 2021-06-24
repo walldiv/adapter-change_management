@@ -115,7 +115,7 @@ healthcheck(callback) {
       * for the callback's errorMessage parameter.
       */
       this.emitOffline();
-      log.error('SNOW SERVICE OFFLINE => %s', this.id);
+      log.error('SNOW SERVICE OFFLINE => ' + this.id);
       if(callback)
         return callback(result, error);
    } else {
@@ -130,7 +130,7 @@ healthcheck(callback) {
       * responseData parameter.
       */
       this.emitOnline();
-      log.error('SNOW SERVICE OFFLINE => %s', this.id);
+      log.error('SNOW SERVICE OFFLINE => ' + this.id);
       if(callback)
         return callback(result, error);
    }
@@ -189,12 +189,30 @@ healthcheck(callback) {
      * Note how the object was instantiated in the constructor().
      * get() takes a callback function.
      */
+     let returnResult = [];
+
      this.connector.get((results, error) => {
        if(error){
          console.log(error);
          log.error(error);
        }
-       return callback(results);
+       if(results.hasOwnProperty('body')){
+         log.info('RESULTS BODY IS VALID');
+         let tmp = JSON.parse(results.body);
+         console.log(tmp.result.length);
+         tmp.result.forEach((res) =>{
+           returnResult.push({
+            "change_ticket_number": res.number,
+            "active": res.active,
+            "priority": res.priority,
+            "description": res.description,
+            "work_start": res.work_start,
+            "work_end": res.work_end,
+            "change_ticket_key": res.sys_id
+           });
+         })
+       }
+      return callback(returnResult);
      })
   }
 
@@ -214,6 +232,29 @@ healthcheck(callback) {
      * Note how the object was instantiated in the constructor().
      * post() takes a callback function.
      */
+      let returnResult;
+
+     this.connector.post((results, error) => {
+       if(error){
+         console.log(error);
+         log.error(error);
+         return callback(error);
+       }
+       if(results.hasOwnProperty('body')){
+         log.info('RESULTS BODY IS VALID');
+         let tmp = JSON.parse(results.body).result;
+         returnResult = {
+            "change_ticket_number": tmp.number,
+            "active": tmp.active,
+            "priority": tmp.priority,
+            "description": tmp.description,
+            "work_start": tmp.work_start,
+            "work_end": tmp.work_end,
+            "change_ticket_key": tmp.sys_id
+           };
+       }
+      return callback(returnResult);
+     })
   }
 }
 
