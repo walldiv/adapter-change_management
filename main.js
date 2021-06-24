@@ -115,9 +115,9 @@ healthcheck(callback) {
       * for the callback's errorMessage parameter.
       */
       this.emitOffline();
-      log.error('SERVICE NOW ADAPTER OFFLINE => %s', this.id);
+      log.error('SNOW SERVICE OFFLINE => %s', this.id);
       if(callback)
-        return callback(error);
+        return callback(result, error);
    } else {
      /**
       * Write this block.
@@ -130,9 +130,9 @@ healthcheck(callback) {
       * responseData parameter.
       */
       this.emitOnline();
-      log.info('SERVICE NOW ADAPTER ONLINE => %s', this.id);
+      log.error('SNOW SERVICE OFFLINE => %s', this.id);
       if(callback)
-        return callback(result);
+        return callback(result, error);
    }
  });
 }
@@ -189,8 +189,12 @@ healthcheck(callback) {
      * Note how the object was instantiated in the constructor().
      * get() takes a callback function.
      */
-     this.connector.get((result) => {
-
+     this.connector.get((results, error) => {
+       if(error){
+         console.log(error);
+         log.error(error);
+       }
+       return callback(results);
      })
   }
 
@@ -210,9 +214,6 @@ healthcheck(callback) {
      * Note how the object was instantiated in the constructor().
      * post() takes a callback function.
      */
-    this.connector.get((result) => {
-       
-    })
   }
 }
 
